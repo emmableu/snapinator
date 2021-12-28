@@ -46,7 +46,7 @@ export default class SnapinatorApp extends Component<any, State> {
             <div class="in box">
                 <h1>Input</h1>
                 <p>Paste a Scratch project URL or ID:</p>
-                <ProjectURLInput onProjectID={this.handleProjectID.bind(this)}/>
+                {/*<ProjectURLInput onProjectID={this.handleProjectID.bind(this)}/>*/}
                 <p>Or load a project from a file:</p>
                 <input class="file" type="file" onInput={this.handleFile.bind(this)}/>
             </div>
