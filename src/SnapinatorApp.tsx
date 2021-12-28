@@ -65,8 +65,9 @@ export default class SnapinatorApp extends Component<any, State> {
         this.setState(({ logs }) => ({ logs: [...logs, <li>{msg}</li>] }));
     }
 
-    async handleProjectID(projectID: string) {
-        const response = await fetch(`http://localhost:8080/project/27-Flappy%20Parrot/project.json`);
+    async getNonScripts(projectID: string) {
+        // const projectID = "27-Flappy%20Parrot";
+        const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
@@ -77,6 +78,21 @@ export default class SnapinatorApp extends Component<any, State> {
             this.writeProject(projectID, project);
         }
     }
+
+    async getScriptsOnly(projectID: string, projectScript: ArrayBuffer) {
+        // const projectID = "27-Flappy%20Parrot";
+        // const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
+        // if (!response.ok) {
+        //     this.log(`Project "${projectID}" could not be retrieved`);
+        //     return;
+        // }
+        const file = projectScript;
+        const project = await this.readProject(projectID, file, false, true);
+        if (project) {
+            this.writeProject(projectID, project);
+        }
+    }
+
 
     handleFile(e) {
         const file = e.target.files[0];
