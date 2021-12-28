@@ -23,7 +23,6 @@ import ProjectURLInput from './components/ProjectURLInput';
 import Project from './Project';
 import { serializeXML } from './xml';
 import { h, Component, ComponentChild } from 'preact';
-import { SB1File } from 'scratch-sb1-converter';
 
 export interface State {
     logs: ComponentChild[];
@@ -119,20 +118,9 @@ export default class SnapinatorApp extends Component<any, State> {
             );
             zip = new AssetServer();
         } catch (err) {
-            try {
-                zip = await new ZipArchive().load(file);
-                const jsonText = await zip.file('project.json').text();
-                jsonObj = JSON.parse(jsonText);
-            } catch (err) {
-                try {
-                    const sb1 = new SB1File(file);
-                    jsonObj = sb1.json;
-                    zip = new SB1Archive(sb1.zip);
-                } catch (err) {
-                    this.log('Invalid project');
-                    return null;
-                }
-            }
+            zip = await new ZipArchive().load(file);
+            const jsonText = await zip.file('project.json').text();
+            jsonObj = JSON.parse(jsonText);
         }
         const project = new Project();
         try {
