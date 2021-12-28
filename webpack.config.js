@@ -4,7 +4,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const profile = process.argv.indexOf('--profile') !== -1;
 
 module.exports = {
-  entry: './index.js',
+  entry: './index.ts',
   output: {
     path: __dirname + "/dist",
     filename: "snapinator_app.bundle.js",
