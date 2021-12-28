@@ -8,7 +8,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: __dirname + "/dist",
-    filename: "snapinator_app.bundle.js"
+    filename: "snapinator_app.bundle.js",
     library: "Snapinator",
   },
   resolve: {
