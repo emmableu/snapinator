@@ -1,3 +1,3 @@
-import SnapinatorApp from "./src/SnapinatorApp"
+import SnapinatorApp from "./src/SnapinatorApp.tsx"
 
 export default SnapinatorApp;
