@@ -9,7 +9,7 @@ module.exports = {
   output: {
     path: __dirname + "/dist",
     filename: "snapinator_app.bundle.js",
-    library: "Snapinator",
+    library: "snapinator",
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
