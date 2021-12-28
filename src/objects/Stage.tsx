@@ -54,24 +54,24 @@ export default class Stage extends Scriptable {
         return this;
     }
 
-    readProjectSB3(jsonObj: any, project: Project): Stage {
+    readProjectSB3(jsonObj: any, project: Project, hasNonScripts: boolean, hasScripts: boolean): Stage {
         const targetObjs = jsonObj.targets;
 
         this.children = [];
         for (let i = 0; i < targetObjs.length; i++) {
             const targetObj = targetObjs[i];
             if (targetObj.isStage) {
-                this.readSB3(targetObj, project, i);
+                this.readSB3(targetObj, project, i, hasNonScripts, hasScripts);
             } else {
-                this.children[targetObj.layerOrder] = new Sprite().readSB3(targetObj, project, i);
+                this.children[targetObj.layerOrder] = new Sprite().readSB3(targetObj, project, i, hasNonScripts, hasScripts);
             }
         }
 
         return this;
     }
 
-    readSB3(jsonObj: any, project: Project, libraryIndex: number): Stage {
-        super.readSB3(jsonObj, project, libraryIndex);
+    readSB3(jsonObj: any, project: Project, libraryIndex: number, hasNonScripts: boolean, hasScripts: boolean): Stage {
+        super.readSB3(jsonObj, project, libraryIndex, hasNonScripts, hasScripts);
 
         this.tempo = jsonObj.tempo;
 

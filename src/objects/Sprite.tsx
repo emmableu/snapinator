@@ -55,8 +55,8 @@ export default class Sprite extends Scriptable {
         this.variables = new VariableFrame(project.globalVars).readScriptableSB2(jsonObj);
     }
 
-    readSB3(jsonObj: any, project: Project, libraryIndex: number): Sprite {
-        super.readSB3(jsonObj, project, libraryIndex);
+    readSB3(jsonObj: any, project: Project, libraryIndex: number, hasNonScripts: boolean, hasScripts: boolean): Sprite {
+        super.readSB3(jsonObj, project, libraryIndex, hasNonScripts, hasScripts);
 
         this.x = jsonObj.x;
         this.y = jsonObj.y;

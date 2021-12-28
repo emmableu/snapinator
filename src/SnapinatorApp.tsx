@@ -66,13 +66,13 @@ export default class SnapinatorApp extends Component<any, State> {
     }
 
     async handleProjectID(projectID: string) {
-        const response = await fetch(`https://projects.scratch.mit.edu/${projectID}`);
+        const response = await fetch(`http://localhost:8080/project/27-Flappy%20Parrot/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
         }
         const file = await response.arrayBuffer();
-        const project = await this.readProject(projectID, file);
+        const project = await this.readProject(projectID, file, true, false);
         if (project) {
             this.writeProject(projectID, project);
         }
@@ -83,7 +83,7 @@ export default class SnapinatorApp extends Component<any, State> {
         const projectName = file.name.replace(/\..*$/, '');
         const reader = new FileReader();
         reader.addEventListener('load', async () => {
-            const project = await this.readProject(projectName, reader.result as ArrayBuffer);
+            const project = await this.readProject(projectName, reader.result as ArrayBuffer, true, true);
             if (project) {
                 this.writeProject(projectName, project);
             }
@@ -91,7 +91,7 @@ export default class SnapinatorApp extends Component<any, State> {
         reader.readAsArrayBuffer(file);
     }
 
-    async readProject(projectName: string, file: ArrayBuffer): Promise<Project | null> {
+    async readProject(projectName: string, file: ArrayBuffer, hasNonScripts: boolean, hasScripts: boolean): Promise<Project | null> {
         let zip: Archive;
         let jsonObj;
         this.log(`Reading project "${projectName}"`);
@@ -120,7 +120,7 @@ export default class SnapinatorApp extends Component<any, State> {
         }
         const project = new Project();
         try {
-            await project.readProject(projectName, jsonObj, zip, this.log.bind(this));
+            await project.readProject(projectName, jsonObj, zip, this.log.bind(this), hasNonScripts, hasScripts);
         } catch (err) {
             this.log(err);
             return null;

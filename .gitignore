@@ -1,2 +1,3 @@
 node_modules
 dist/snapinator_app.bundle.js
+.idea

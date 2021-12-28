@@ -41,7 +41,7 @@ export default class Project {
 
     hasBackdropEvents: boolean;
 
-    async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void) {
+    async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void, hasNonScripts: boolean, hasScripts: boolean) {
         this.name = name;
         this.jsonObj = jsonObj;
         this.zip = zip;
@@ -56,7 +56,7 @@ export default class Project {
             const stageObj = this.jsonObj.targets.find((obj) => obj.isStage);
             this.media = await this.readMediaSB3();
             this.globalVars = new VariableFrame().readScriptableSB3(stageObj);
-            this.stage = new Stage().readProjectSB3(this.jsonObj, this);
+            this.stage = new Stage().readProjectSB3(this.jsonObj, this, hasNonScripts, hasScripts);
         }
 
         this.hasBackdropEvents = this.hasBlock('event_whenbackdropswitchesto') || this.hasBlock('looks_switchbackdroptoandwait');

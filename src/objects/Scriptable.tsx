@@ -108,7 +108,7 @@ export default class Scriptable {
         this.variables = new VariableFrame(project.globalVars);
     }
 
-    readSB3(jsonObj: any, project: Project, libraryIndex: number): Scriptable {
+    readSB3(jsonObj: any, project: Project, libraryIndex: number, hasNonScripts: boolean, hasScripts: boolean): Scriptable {
         this.project = project;
         const costumeObjs = jsonObj.costumes;
         const soundObjs = jsonObj.sounds;
@@ -119,41 +119,49 @@ export default class Scriptable {
 
         this.name = jsonObj.name;
         this.costumes = [];
-        for (const costumeObj of costumeObjs) {
-            this.costumes.push(new Costume().readSB3(costumeObj, project));
-        }
         this.sounds = [];
-        for (const soundObj of soundObjs) {
-            this.sounds.push(new Sound().readSB3(soundObj, project));
-        }
-        this.costumeIndex = jsonObj.currentCostume + 1;
-
-        this.readVariablesSB3(jsonObj, project);
-
         this.blocks = [];
         this.scripts = [];
-        for (const commentID in commentMap) {
-            if (commentMap.hasOwnProperty(commentID)) {
-                const commentObj = commentMap[commentID];
-                const blockID = commentObj.blockId;
-                const comment = new ScriptComment().readSB3(commentObj);
-                if (blockID === null) {
-                    this.scripts.push(comment);
-                } else {
-                    blockComments[blockID] = comment;
-                }
+
+        if (hasNonScripts) {
+            for (const costumeObj of costumeObjs) {
+                this.costumes.push(new Costume().readSB3(costumeObj, project));
             }
+            for (const soundObj of soundObjs) {
+                this.sounds.push(new Sound().readSB3(soundObj, project));
+            }
+            this.costumeIndex = jsonObj.currentCostume + 1;
+
+            this.readVariablesSB3(jsonObj, project);
         }
+
+        // for (const commentID in commentMap) {
+        //     if (commentMap.hasOwnProperty(commentID)) {
+        //         const commentObj = commentMap[commentID];
+        //         const blockID = commentObj.blockId;
+        //         const comment = new ScriptComment().readSB3(commentObj);
+        //         if (blockID === null) {
+        //             this.scripts.push(comment);
+        //         } else {
+        //             blockComments[blockID] = comment;
+        //         }
+        //     }
+        // }
+
         for (const blockID in blockMap) {
             if (blockMap.hasOwnProperty(blockID)) {
                 const blockObj = blockMap[blockID];
                 if (Array.isArray(blockObj) || (blockObj.topLevel && !blockObj.shadow)) {
                     if (!Array.isArray(blockObj) && blockObj.opcode === 'procedures_definition') {
-                        this.blocks.push(
-                            new BlockDefinition().readSB3(blockID, blockMap, blockComments, this.variables),
-                        );
+                        if (hasNonScripts) {
+                            this.blocks.push(
+                                new BlockDefinition().readSB3(blockID, blockMap, blockComments, this.variables),
+                            );
+                        }
                     } else {
-                        this.scripts.push(new Script().readSB3(blockID, blockMap, blockComments, this.variables));
+                        if (hasScripts) {
+                            this.scripts.push(new Script().readSB3(blockID, blockMap, blockComments, this.variables));
+                        }
                     }
                 }
             }
