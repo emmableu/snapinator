@@ -5,10 +5,11 @@ const profile = process.argv.indexOf('--profile') !== -1;
 
 module.exports = {
   context: __dirname + "/src",
-  entry: "./app.tsx",
+  entry: './src/index.js',
   output: {
     path: __dirname + "/dist",
     filename: "snapinator_app.bundle.js"
+    library: "Snapinator",
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
