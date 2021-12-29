@@ -57,6 +57,7 @@ export default class Color {
     }
 
     toXML() {
+        // @ts-ignore
         return <color>{this.toString()}</color>;
     }
 }

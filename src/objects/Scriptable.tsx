@@ -174,39 +174,24 @@ export default class Scriptable {
         this.variables = new VariableFrame(project.globalVars);
     }
 
-    costumesXML(): Element {
-        return <costumes>
-            <list>
-                {this.costumes.map((costume) => <item>{costume.toXML()}</item>)}
-            </list>
-        </costumes>;
+    costumesXML(): any {
+        // @ts-ignore
+        return <costumes><list>{this.costumes.map((costume) => <item>{costume.toXML()}</item>)}</list></costumes>;
     }
 
-    soundsXML(): Element {
-        return <sounds>
-            <list>
-                {this.sounds.map((sound) => <item>{sound.toXML()}</item>)}
-            </list>
-        </sounds>;
+    soundsXML(): any {
+        // @ts-ignore
+        return <sounds><list>{this.sounds.map((sound) => <item>{sound.toXML()}</item>)}</list></sounds>;
     }
 
-    blocksXML(): Element {
-        return <blocks>
-            {this.blocks.map((blockDef) => blockDef.toXML(this))}
-        </blocks>;
+    blocksXML(): any {
+        // @ts-ignore
+        return <blocks>{this.blocks.map((blockDef) => blockDef.toXML(this))}</blocks>;
     }
 
-    scriptsXML(): Element {
-        return <scripts>
-            {this.scripts.map((scriptOrComment) => {
-                if (scriptOrComment instanceof ScriptComment) {
-                    const comment: ScriptComment = scriptOrComment;
-                    return comment.toXML();
-                }
-                const script: Script = scriptOrComment;
-                return script.toXML(this);
-            })}
-        </scripts>;
+    scriptsXML(): any {
+        // @ts-ignore
+        return <scripts>{this.scripts.map((scriptOrComment) => {if (scriptOrComment instanceof ScriptComment) {const comment: ScriptComment = scriptOrComment;return comment.toXML();}const script: Script = scriptOrComment;return script.toXML(this);})}</scripts>;
     }
 
     hasBlock(op: string): boolean {

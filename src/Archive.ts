@@ -19,7 +19,7 @@
 */
 
 import * as Base64 from 'base64-js';
-import * as unzipit from 'unzipit';
+import * as unzipitModule from 'unzipit';
 
 export abstract class ArchiveEntry {
     abstract uint8array(): Promise<Uint8Array>;
@@ -38,9 +38,9 @@ export default interface Archive {
 }
 
 export class ZipEntry extends ArchiveEntry {
-    file: unzipit.ZipEntry;
+    file: unzipitModule.ZipEntry;
 
-    constructor(file: unzipit.ZipEntry) {
+    constructor(file: unzipitModule.ZipEntry) {
         super();
         this.file = file;
     }
@@ -51,11 +51,11 @@ export class ZipEntry extends ArchiveEntry {
 }
 
 export class ZipArchive implements Archive {
-    zip: unzipit.Zip;
-    entries: {[key: string]: unzipit.ZipEntry};
+    zip: unzipitModule.Zip;
+    entries: {[key: string]: unzipitModule.ZipEntry};
 
     async load(buf: ArrayBuffer): Promise<ZipArchive> {
-        const {zip, entries} = await unzipit.unzip(buf);
+        const {zip, entries} = await unzipitModule.unzip(buf);
         this.zip = zip;
         this.entries = entries;
         return this;

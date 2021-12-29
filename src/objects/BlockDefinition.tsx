@@ -137,32 +137,21 @@ export default class BlockDefinition {
         return this;
     }
 
-    toXML(scriptable: Scriptable) {
-        const children = [
-            <header/>,
-            <code/>,
-            <inputs>
-                {this.inputTypes.map((type) => <input type={type}/>)}
-            </inputs>,
-        ];
+    toXML(scriptable: Scriptable): HTMLElement {
+        // @ts-ignore
+        const children = [<header/>, <code/>, <inputs>{this.inputTypes.map((type) => <input type={type}/>)}</inputs>,];
         if (this.comment) {
+            // @ts-ignore
             children.push(this.comment.toXML());
         }
         if (this.warp) {
-            children.push(
-                <script>
-                    <block s="doWarp">
-                        {this.script
-                                ? this.script.toXML(scriptable)
-                                : <script/>}
-                    </block>
-                </script>
-            );
+            // @ts-ignore
+            children.push(<script><block s="doWarp"> {this.script ? this.script.toXML(scriptable) : <script/>}</block></script>);
         } else if (this.script) {
+            // @ts-ignore
             children.push(this.script.toXML(scriptable));
         }
-        return <block-definition s={this.spec} type={this.type} category="other">
-            {children}
-        </block-definition>;
+        // @ts-ignore
+        return <block-definition s={this.spec} type={this.type} category="other">{children}</block-definition>;
     }
 }

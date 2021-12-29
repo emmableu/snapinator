@@ -161,23 +161,13 @@ export default class Project {
             this.log(`Unsupported block: ${op}`);
             this.unsupportedOps[op] = isReporter;
         }
+        // @ts-ignore
         return <custom-block s={'UNSUPPORTED: ' + op}/>
     }
 
-    toXML() {
-        return <project name={this.name} app="Snapinator" version="1">
-            <notes>Converted by Snapinator</notes>
-            {this.stage.toXML()}
-            <hidden/>
-            <headers/>
-            <code/>
-            <blocks>
-                {Object.keys(this.unsupportedOps).map(
-                    (op) => new BlockDefinition().placeholder('UNSUPPORTED: ' + op, this.unsupportedOps[op]).toXML(null)
-                )}
-            </blocks>
-            {this.globalVars.toXML()}
-        </project>;
+    toXML() : HTMLElement {
+        // @ts-ignore
+        return <project name={this.name} app="Snapinator" version="1"><notes>Converted by Snapinator</notes>{this.stage.toXML()}<hidden/><headers/><code/><blocks>{Object.keys(this.unsupportedOps).map((op) => new BlockDefinition().placeholder('UNSUPPORTED: ' + op, this.unsupportedOps[op]).toXML(null))}</blocks>{this.globalVars.toXML()}</project>;
     }
 
     hasBlock(op: string): boolean {

@@ -54,14 +54,12 @@ export default class ScriptComment {
         return this;
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
         if (this.x != null && this.y != null) {
-            return <comment x={this.x} y={this.y} w={this.width} collapsed={this.collapsed}>
-                {this.text}
-            </comment>;
+            // @ts-ignore
+            return <comment x={this.x} y={this.y} w={this.width} collapsed={this.collapsed}>{this.text}</comment>;
         }
-        return <comment w={this.width} collapsed={this.collapsed}>
-            {this.text}
-        </comment>;
+        // @ts-ignore
+        return <comment w={this.width} collapsed={this.collapsed}>{this.text}</comment>;
     }
 }

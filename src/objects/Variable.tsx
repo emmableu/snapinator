@@ -31,9 +31,8 @@ export default class Variable {
         }
     }
 
-    toXML(): Element {
-        return <variable name={this.name}>
-            {this.value.toXML()}
-        </variable>;
+    toXML(): HTMLElement {
+        // @ts-ignore
+        return <variable name={this.name}> {this.value.toXML()} </variable>;
     }
 }

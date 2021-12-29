@@ -381,7 +381,7 @@ export default class Block {
         return prim;
     }
 
-    toXML(scriptable: Scriptable, isArg: boolean = false): Element {
+    toXML(scriptable: Scriptable, isArg: boolean = false): any {
         const argToXML = (arg: any) => {
             if (arg instanceof Script) {
                 const script: Script = arg;
@@ -395,14 +395,8 @@ export default class Block {
         };
 
         const tellStageTo = (block: any) => {
-            return <block s="doTellTo">
-                <l>Stage</l>
-                <block s="reifyScript">
-                    <script>{block}</script>
-                    <list/>
-                </block>
-                <list/>
-            </block>;
+            // @ts-ignore
+            return <block s="doTellTo"> <l>Stage</l> <block s="reifyScript"> <script>{block}</script> <list/> </block> <list/> </block>;
         };
 
         const SPECIAL_CASE_BLOCKS: any = {};
@@ -410,49 +404,36 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['data_variable'] =
         SPECIAL_CASE_BLOCKS['argument_reporter_string_number'] =
         SPECIAL_CASE_BLOCKS['argument_reporter_boolean'] = () => {
+            // @ts-ignore
             return <block var={this.args[0].value}/>;
         };
 
         SPECIAL_CASE_BLOCKS['data_listcontents'] = () => {
-            return <block s="reportJoinWords">
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="reportJoinWords"> {argToXML(this.args[0])} </block>;
         };
 
         SPECIAL_CASE_BLOCKS['procedures_call'] = () => {
-            return <custom-block s={this.spec} scope={scriptable.name}>
-                {this.args.map(argToXML)}
-            </custom-block>;
+            // @ts-ignore
+            return <custom-block s={this.spec} scope={scriptable.name}> {this.args.map(argToXML)} </custom-block>;
         };
 
         SPECIAL_CASE_BLOCKS['motion_glideto'] = () => {
             const component = (objName, x) => {
                 if (objName.value === '_mouse_') {
+                    // @ts-ignore
                     return <block s={x ? 'reportMouseX' : 'reportMouseY'}/>;
                 }
                 if (objName.value === '_random_') {
-                    return <block s="reportRandom">
-                        <block s="reportAttributeOf">
-                            <l><option>{x ? 'left' : 'bottom'}</option></l>
-                            <l>Stage</l>
-                        </block>
-                        <block s="reportAttributeOf">
-                            <l><option>{x ? 'right' : 'top'}</option></l>
-                            <l>Stage</l>
-                        </block>
-                    </block>;
+                    // @ts-ignore
+                    return <block s="reportRandom"><block s="reportAttributeOf"><l><option>{x ? 'left' : 'bottom'}</option></l><l>Stage</l></block><block s="reportAttributeOf"><l><option>{x ? 'right' : 'top'}</option></l><l>Stage</l>                     </block></block>;
                 }
-                return <block s="reportAttributeOf">
-                    <l><option>{x ? 'x position' : 'y position'}</option></l>
-                    {argToXML(objName)}
-                </block>;
+                // @ts-ignore
+                return <block s="reportAttributeOf"><l><option>{x ? 'x position' : 'y position'}</option></l>{argToXML(objName)}</block>;
             };
 
-            return <block s="doGlide">{[
-                argToXML(this.args[0]),
-                component(this.args[1], true),
-                component(this.args[1], false),
-            ]}</block>;
+            // @ts-ignore
+            return <block s="doGlide">{[argToXML(this.args[0]), component(this.args[1], true), component(this.args[1], false),]}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['motion_setrotationstyle'] = () => {
@@ -461,79 +442,60 @@ export default class Block {
                 'all around': 1,
                 'left-right': 2,
             };
-            return <block s="doSetVar">
-                <l><option>rotation style</option></l>
-                <l>{ROTATION_STYLES[this.args[0].value] || 0}</l>
-            </block>
+            // @ts-ignore
+            return <block s="doSetVar"><l><option>rotation style</option></l><l>{ROTATION_STYLES[this.args[0].value] || 0}</l></block>
         };
 
         SPECIAL_CASE_BLOCKS['comeToFront'] = () => {
-            return <block s="goToLayer">
-                <l><option>front</option></l>
-            </block>;
+            // @ts-ignore
+            return <block s="goToLayer"><l><option>front</option></l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['looks_goforwardbackwardlayers'] = () => {
             if (this.args[0].value === 'forward') {
                 if (this.args[1] instanceof Block) {
-                    return <block s="goBack">
-                        <block s="reportDifference">
-                            <l>0</l>
-                            {argToXML(this.args[1])}
-                        </block>
-                    </block>;
+                    // @ts-ignore
+                    return <block s="goBack"><block s="reportDifference"><l>0</l>{argToXML(this.args[1])}</block></block>;
                 } else {
                     this.args[1].value = -this.args[1].value;
                 }
             }
+            // @ts-ignore
             return <block s="goBack">{argToXML(this.args[1])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['costumeName'] = () => {
-            return <block s="reportAttributeOf">
-                <l><option>costume name</option></l>
-                <block s="reportObject">
-                    <l><option>myself</option></l>
-                </block>
-            </block>;
+            // @ts-ignore
+            return <block s="reportAttributeOf"><l><option>costume name</option></l><block s="reportObject"><l><option>myself</option></l></block></block>;
         };
 
         SPECIAL_CASE_BLOCKS['looks_costumenumbername'] = () => {
             const arg = this.args[0].value;
             if (arg === 'number') {
+                // @ts-ignore
                 return <block s="getCostumeIdx"/>
             }
             return SPECIAL_CASE_BLOCKS['costumeName']();
         };
 
         const switchBackdropTo = (arg: any) => {
-            let result: Element;
+            let result: any;
             if (arg instanceof Primitive) {
                 const backdrop = arg.value;
                 if (backdrop === 'next backdrop') {
+                    // @ts-ignore
                     result = <block s="doWearNextCostume"/>;
                 } else if (backdrop === 'previous backdrop') {
-                    result = <block s="doSwitchToCostume">
-                        <block s="reportDifference">
-                            <l>0</l>
-                            <l>1</l>
-                        </block>
-                    </block>;
+                    // @ts-ignore
+                    result = <block s="doSwitchToCostume"><block s="reportDifference"><l>0</l><l>1</l></block></block>;
                 } else if (backdrop === 'random backdrop') {
-                    result = <block s="doSwitchToCostume">
-                        <block s="reportListItem">
-                            <l><option>any</option></l>
-                            <block s="reportGet">
-                                <l><option>costumes</option></l>
-                            </block>
-                        </block>
-                    </block>;
+                    // @ts-ignore
+                    result = <block s="doSwitchToCostume"><block s="reportListItem"><l><option>any</option></l><block s="reportGet"><l><option>costumes</option></l></block></block></block>;
                 }
             }
             if (!result) {
-                result = <block s="doSwitchToCostume">
-                    {argToXML(arg)}
-                </block>;
+                // @ts-ignore
+                result = <block s="doSwitchToCostume">{argToXML(arg)}</block>;
             }
             if (!scriptable.isStage) {
                 result = tellStageTo(result);
@@ -544,48 +506,25 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['looks_switchbackdropto'] = () => {
             let result: any = switchBackdropTo(this.args[0]);
             if (scriptable.project.hasBackdropEvents) {
-                result = [
-                    result,
-                    <block s="doBroadcast">
-                        <block s="reportJoinWords">
-                            <list>
-                                <l>backdrop switched to </l>
-                                <block s="reportAttributeOf">
-                                    <l><option>costume name</option></l>
-                                    <l>Stage</l>
-                                </block>
-                            </list>
-                        </block>
-                    </block>,
+                // @ts-ignore
+                result = [result, <block s="doBroadcast"><block s="reportJoinWords"><list><l>backdrop switched to </l><block s="reportAttributeOf"><l><option>costume name</option></l><l>Stage</l></block></list></block></block>,
                 ];
             }
             return result;
         };
 
         SPECIAL_CASE_BLOCKS['looks_switchbackdroptoandwait'] = () => {
-            return [
-                switchBackdropTo(this.args[0]),
-                <block s="doBroadcastAndWait">
-                    <block s="reportJoinWords">
-                        <list>
-                            <l>backdrop switched to </l>
-                            <block s="reportAttributeOf">
-                                <l><option>costume name</option></l>
-                                <l>Stage</l>
-                            </block>
-                        </list>
-                    </block>
-                </block>,
-            ];
+            // @ts-ignore
+            return [switchBackdropTo(this.args[0]), <block s="doBroadcastAndWait"><block s="reportJoinWords"><list><l>backdrop switched to </l><block s="reportAttributeOf"><l><option>costume name</option></l><l>Stage</l></block></list></block></block>,];
         };
 
         SPECIAL_CASE_BLOCKS['event_whenbackdropswitchesto'] = () => {
-            return <block s="receiveMessage">
-                <l>{'backdrop switched to ' + this.args[0].value}</l>
-            </block>;
+            // @ts-ignore
+            return <block s="receiveMessage"><l>{'backdrop switched to ' + this.args[0].value}</l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['looks_nextbackdrop'] = () => {
+            // @ts-ignore
             let result = <block s="doWearNextCostume"/>;
             if (!scriptable.isStage) {
                 result = tellStageTo(result);
@@ -595,37 +534,32 @@ export default class Block {
 
         SPECIAL_CASE_BLOCKS['backgroundIndex'] = () => {
             if (scriptable.isStage) {
+                // @ts-ignore
                 return <block s="getCostumeIdx"/>;
             }
-            return <block s="reportAttributeOf">
-                <l><option>costume #</option></l>
-                <l>Stage</l>
-            </block>;
+            // @ts-ignore
+            return <block s="reportAttributeOf"><l><option>costume #</option></l><l>Stage</l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['sceneName'] = () => {
-            return <block s="reportAttributeOf">
-                <l><option>costume name</option></l>
-                <l>Stage</l>
-            </block>;
+            // @ts-ignore
+            return <block s="reportAttributeOf"><l><option>costume name</option></l><l>Stage</l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['looks_backdropnumbername'] = () => {
             const arg = this.args[0].value;
             if (arg === 'number' && scriptable.isStage) {
+                // @ts-ignore
                 return <block s="getCostumeIdx"/>;
             }
             const newArg = arg === 'number' ? 'costume #' : 'costume name';
-            return <block s="reportAttributeOf">
-                <l><option>{newArg}</option></l>
-                <l>Stage</l>
-            </block>;
+            // @ts-ignore
+            return <block s="reportAttributeOf"><l><option>{newArg}</option></l><l>Stage</l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['event_whenthisspriteclicked'] = () => {
-            return <block s="receiveInteraction">
-                <l><option>pressed</option></l>
-            </block>;
+            // @ts-ignore
+            return <block s="receiveInteraction"><l><option>pressed</option></l></block>;
         };
 
         SPECIAL_CASE_BLOCKS['sensing_touchingobject'] = () => {
@@ -634,89 +568,61 @@ export default class Block {
                 // If the argument is a sprite, Scratch returns true only if the calling
                 // sprite is visible. In Snap!, it doesn't matter, so insert a "shown?" block.
                 // If the argument is a reporter, just assume it returns a sprite.
-                return <block s="reportAnd">
-                    <block s="reportShown"/>
-                    <block s="reportTouchingObject">
-                        {argToXML(arg)}
-                    </block>
-                </block>;
+                // @ts-ignore
+                return <block s="reportAnd"><block s="reportShown"/><block s="reportTouchingObject">{argToXML(arg)}</block></block>;
             }
-            return <block s="reportTouchingObject">
-                {argToXML(arg)}
-            </block>;
+            // @ts-ignore
+            return <block s="reportTouchingObject">{argToXML(arg)}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['videoSensing_videoToggle'] = () => {
             const arg = this.args[0].value;
             if (arg === 'off') {
-                return <block s="doSetGlobalFlag">
-                    <l><option>video capture</option></l>
-                    <l><bool>false</bool></l>
-                </block>;
+                // @ts-ignore
+                return <block s="doSetGlobalFlag"><l><option>video capture</option></l><l><bool>false</bool></l></block>;
             }
             const mirror = arg === 'on';
-            return [
-                <block s="doSetGlobalFlag">
-                    <l><option>video capture</option></l>
-                    <l><bool>true</bool></l>
-                </block>,
-                <block s="doSetGlobalFlag">
-                    <l><option>mirror video</option></l>
-                    <l><bool>{mirror}</bool></l>
-                </block>,
-            ];
+            // @ts-ignore
+            return [<block s="doSetGlobalFlag"><l><option>video capture</option></l><l><bool>true</bool></l></block>, <block s="doSetGlobalFlag"><l><option>mirror video</option></l><l><bool>{mirror}</bool></l></block>,];
         };
 
         SPECIAL_CASE_BLOCKS['operator_join'] = () => {
-            return <block s="reportJoinWords">
-                <list>
-                    {argToXML(this.args[0])}
-                    {argToXML(this.args[1])}
-                </list>
-            </block>;
+            // @ts-ignore
+            return <block s="reportJoinWords"><list>{argToXML(this.args[0])}{argToXML(this.args[1])}</list></block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_changePenHueBy'] = () => {
-            return <block s="changePenHSVA">
-                <l><option>hue</option></l>
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="changePenHSVA"><option>hue</option>{argToXML(this.args[0])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_setPenHueToNumber'] = () => {
-            return <block s="setPenHSVA">
-                <l><option>hue</option></l>
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="setPenHSVA"><l><option>hue</option></l>{argToXML(this.args[0])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_changePenShadeBy'] = () => {
-            return <block s="changePenHSVA">
-                <l><option>brightness</option></l>
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="changePenHSVA"><l><option>brightness</option></l>{argToXML(this.args[0])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_setPenShadeToNumber'] = () => {
-            return <block s="setPenHSVA">
-                <l><option>brightness</option></l>
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="setPenHSVA"><l><option>brightness</option></l>{argToXML(this.args[0])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['data_deletealloflist'] = () => {
-            return <block s="doDeleteFromList">
-                <l><option>all</option></l>
-                {argToXML(this.args[0])}
-            </block>;
+            // @ts-ignore
+            return <block s="doDeleteFromList"><l><option>all</option></l>{argToXML(this.args[0])}</block>;
         };
 
-        let element: Element;
+        let element: any;
         if (SPECIAL_CASE_BLOCKS.hasOwnProperty(this.op)) {
             element = SPECIAL_CASE_BLOCKS[this.op]();
         } else {
             const snapOp = SB3_TO_SNAP_OP_MAP[this.op];
             if (snapOp) {
+                // @ts-ignore
                 element = <block s={snapOp}>{this.args.map(argToXML)}</block>;
             } else {
                 element = scriptable.project.unsupportedBlock(this.op, isArg);

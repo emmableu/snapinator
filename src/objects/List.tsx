@@ -27,10 +27,9 @@ export default class List {
         this.contents = contents;
     }
 
-    toXML(): Element {
-        return <list struct="atomic">
-            {this.contents.map(this.encodeCell).join(',')}
-        </list>;
+    toXML(): HTMLElement {
+        // @ts-ignore
+        return <list struct="atomic">{this.contents.map(this.encodeCell).join(',')}</list>;
     }
 
     // Adapted from lists.js in Snap!

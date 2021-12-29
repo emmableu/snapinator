@@ -40,7 +40,8 @@ export default class Sound {
         return this;
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
+        // @ts-ignore
         return <sound name={this.name} sound={this.file.toDataURL()}/>;
     }
 }

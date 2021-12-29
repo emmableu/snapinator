@@ -74,7 +74,7 @@ export default class Sprite extends Scriptable {
         this.variables = new VariableFrame(project.globalVars).readScriptableSB3(jsonObj);
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
         const props: any = {
             name: this.name,
             idx: this.libraryIndex,
@@ -92,12 +92,7 @@ export default class Sprite extends Scriptable {
             props.hidden = true;
         }
 
-        return <sprite {...props}>
-            {this.costumesXML()}
-            {this.soundsXML()}
-            {this.variables.toXML()}
-            {this.blocksXML()}
-            {this.scriptsXML()}
-        </sprite>;
+        // @ts-ignore
+        return <sprite {...props}>{this.costumesXML()}{this.soundsXML()}{this.variables.toXML()}{this.blocksXML()}{this.scriptsXML()}</sprite>;
     }
 }

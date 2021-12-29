@@ -50,7 +50,8 @@ export default class Costume {
         return this;
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
+        // @ts-ignore
         return <costume name={this.name} center-x={this.rotationCenterX} center-y={this.rotationCenterY} image={this.file.toDataURL()}/>;
     }
 }

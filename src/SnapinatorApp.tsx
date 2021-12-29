@@ -74,6 +74,7 @@ export default class SnapinatorApp extends Component<any, State> {
         const file = await response.arrayBuffer();
         const project = await this.readProject(projectID, file, true, false);
         if (project) {
+            console.log("project: ", project);
             this.writeProject(projectID, project);
         }
     }
@@ -136,6 +137,7 @@ export default class SnapinatorApp extends Component<any, State> {
         this.log(<span>Writing Snap<i>!</i> XML</span>);
         try {
             const projectXML = serializeXML(project.toXML());
+            console.log("projectXML: ", projectXML.toString());
             const projectURL = URL.createObjectURL(new Blob([projectXML], {type: 'text/xml'}));
             const openInSnap = () => {
                 window.open('https://snap.berkeley.edu/snap/snap.html#open:' + encodeURIComponent(projectXML), '_blank');

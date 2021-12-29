@@ -78,7 +78,7 @@ export default class Stage extends Scriptable {
         return this;
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
         const props = {
             name: this.name,
             width: 480,
@@ -90,15 +90,7 @@ export default class Stage extends Scriptable {
             codify: false,
             scheduled: false,
         };
-        return <stage {...props}>
-            {this.costumesXML()}
-            {this.soundsXML()}
-            <variables/>
-            {this.blocksXML()}
-            {this.scriptsXML()}
-            <sprites>
-                {this.children.map((child) => child.toXML())}
-            </sprites>
-        </stage>;
+        // @ts-ignore
+        return <stage {...props}>{this.costumesXML()}{this.soundsXML()}<variables/>{this.blocksXML()}{this.scriptsXML()}<sprites>{this.children.map((child) => child.toXML())}</sprites></stage>;
     }
 }

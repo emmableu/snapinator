@@ -18,7 +18,7 @@
 
 */
 
-export function h(tagName: string, attribs?: any, ...content: any): Element {
+export function h(tagName: string, attribs?: any, ...content: any): HTMLElement {
     const el = document.createElementNS(null, tagName);
     const addContent = (c: any) => {
         if (c == null) {
@@ -43,6 +43,6 @@ export function h(tagName: string, attribs?: any, ...content: any): Element {
     return el;
 }
 
-export function serializeXML(el: Element): string {
+export function serializeXML(el: any): string {
     return new XMLSerializer().serializeToString(el);
 }

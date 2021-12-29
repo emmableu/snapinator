@@ -33,19 +33,24 @@ export default class Primitive {
         return this.value.toString();
     }
 
-    toXML(): Element {
+    toXML(): HTMLElement {
         if (this.isOption) {
+            // @ts-ignore
             return <l><option>{this.value}</option></l>;
         }
         if (typeof this.value === 'boolean') {
             if (this.value) {
+                // @ts-ignore
                 return <l><bool>true</bool></l>;
             }
+            // @ts-ignore
             return <l/>;
         }
         if (this.value == null) {
+            // @ts-ignore
             return <l/>;
         }
+        // @ts-ignore
         return <l>{this.value}</l>;
     }
 }

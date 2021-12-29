@@ -91,9 +91,10 @@ export default class Script {
         return this;
     }
 
-    toXML(scriptable: Scriptable): Element {
+    toXML(scriptable: Scriptable): any {
         const stack = this.stack.map((block) => block.toXML(scriptable));
         if (this.x != null && this.y != null) {
+            // @ts-ignore
             return <script x={this.x} y={this.y}>{stack}</script>
         }
         return <script>{stack}</script>

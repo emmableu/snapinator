@@ -176,9 +176,8 @@ export default class VariableFrame {
         return this;
     }
 
-    toXML(): Element {
-        return <variables>
-            {this.vars.map((variable) => variable.toXML())}
-        </variables>;
+    toXML(): HTMLElement {
+        // @ts-ignore
+        return <variables> {this.vars.map((variable) => variable.toXML())} </variables>;
     }
 }
