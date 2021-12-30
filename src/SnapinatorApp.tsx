@@ -66,7 +66,7 @@ export default class SnapinatorApp extends Component<any, State> {
     }
 
     async getNonScripts(projectID: string) {
-        projectID = "27-Flappy%20Parrot";
+        // projectID = "27-Flappy%20Parrot";
         const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);

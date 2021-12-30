@@ -20,7 +20,6 @@
 
 import { h, Component } from 'preact';
 
-const PROJECT_PREFIX = 'https://scratch.mit.edu/projects/';
 
 export interface Props {
     onProjectID: (projectID: string) => void;
@@ -28,7 +27,6 @@ export interface Props {
 
 export interface State {
     projectID: string,
-    projectURL: string,
 }
 
 export default class ProjectURLInput extends Component<Props, State> {
@@ -38,14 +36,13 @@ export default class ProjectURLInput extends Component<Props, State> {
         super(props);
         this.state = {
             projectID: '',
-            projectURL: "",
         };
     }
 
     render() {
         return (
             <div>
-             <input class="url" value={this.state.projectURL} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}/>
+             <input id='urlInput' class="url" value={this.state.projectID} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}/>
                <button id="urlInputButton" onClick={this.handleURLInputButtonClick.bind(this)}>enter</button>
             </div>
         );
@@ -67,11 +64,9 @@ export default class ProjectURLInput extends Component<Props, State> {
         // const numbers = e.target.value.match(/\d+/g) || [''];
         // const id = numbers[0];
         let id = e.target.value;
-        id = "27-Flappy%20Parrot";
-        const newProjectURL = `http://localhost:8080/project/${id}/project.json`;
+        // id = "27-Flappy%20Parrot";
         this.setState({
             projectID: id,
-            projectURL: newProjectURL,
         });
         // if (newProjectURL !== this.state.projectURL) {
         //     if (this.timeoutID != null) {
@@ -87,6 +82,6 @@ export default class ProjectURLInput extends Component<Props, State> {
     }
 
     handleURLInputButtonClick (e) {
-        this.props.onProjectID(this.state.projectURL);
+        this.props.onProjectID(this.state.projectID);
     }
 }
