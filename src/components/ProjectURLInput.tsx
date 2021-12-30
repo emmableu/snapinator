@@ -23,7 +23,7 @@ import { h, Component } from 'preact';
 const PROJECT_PREFIX = 'https://scratch.mit.edu/projects/';
 
 export interface Props {
-    onProjectID: (projectID: number) => void;
+    onProjectID: (projectID: string) => void;
 }
 
 export interface State {
@@ -38,12 +38,17 @@ export default class ProjectURLInput extends Component<Props, State> {
         super(props);
         this.state = {
             projectID: '',
-            projectURL: PROJECT_PREFIX,
+            projectURL: "",
         };
     }
 
     render() {
-        return <input class="url" value={this.state.projectURL} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}/>;
+        return (
+            <div>
+             <input class="url" value={this.state.projectURL} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}/>
+               <button id="urlInputButton" onClick={this.handleURLInputButtonClick.bind(this)}>enter</button>
+            </div>
+        );
     }
 
     componentWillUnmount() {
@@ -59,23 +64,29 @@ export default class ProjectURLInput extends Component<Props, State> {
     }
 
     handleInput(e) {
-        const numbers = e.target.value.match(/\d+/g) || [''];
-        const id = numbers[0];
-        const newProjectURL = PROJECT_PREFIX + id;
+        // const numbers = e.target.value.match(/\d+/g) || [''];
+        // const id = numbers[0];
+        let id = e.target.value;
+        id = "27-Flappy%20Parrot";
+        const newProjectURL = `http://localhost:8080/project/${id}/project.json`;
         this.setState({
             projectID: id,
             projectURL: newProjectURL,
         });
-        if (newProjectURL !== this.state.projectURL) {
-            if (this.timeoutID != null) {
-                window.clearTimeout(this.timeoutID);
-            }
-            if (id !== '' && this.props.onProjectID) {
-                this.timeoutID = window.setTimeout(() => {
-                    this.props.onProjectID(id);
-                    this.timeoutID = null;
-                }, 500);
-            }
-        }
+        // if (newProjectURL !== this.state.projectURL) {
+        //     if (this.timeoutID != null) {
+        //         window.clearTimeout(this.timeoutID);
+        //     }
+        //     if (id !== '' && this.props.onProjectID) {
+        //         this.timeoutID = window.setTimeout(() => {
+        //             this.props.onProjectID(id);
+        //             this.timeoutID = null;
+        //         }, 500);
+        //     }
+        // }
+    }
+
+    handleURLInputButtonClick (e) {
+        this.props.onProjectID(this.state.projectURL);
     }
 }

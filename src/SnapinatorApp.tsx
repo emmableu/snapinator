@@ -46,7 +46,7 @@ export default class SnapinatorApp extends Component<any, State> {
             <div class="in box">
                 <h1>Input</h1>
                 <p>Paste a Scratch project URL or ID:</p>
-                {/*<ProjectURLInput onProjectID={this.handleProjectID.bind(this)}/>*/}
+                <ProjectURLInput onProjectID={this.getNonScripts.bind(this)}/>
                 <p>Or load a project from a file:</p>
                 <input class="file" type="file" onInput={this.handleFile.bind(this)}/>
             </div>
@@ -66,7 +66,7 @@ export default class SnapinatorApp extends Component<any, State> {
     }
 
     async getNonScripts(projectID: string) {
-        // const projectID = "27-Flappy%20Parrot";
+        projectID = "27-Flappy%20Parrot";
         const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
