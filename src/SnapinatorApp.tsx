@@ -153,10 +153,12 @@ export default class SnapinatorApp extends Component<any, State> {
                 window.open('https://snap.berkeley.edu/snap/snap.html#open:' + encodeURIComponent(projectXML), '_blank');
             };
             this.log(
-                <span>
-                    Success! <a href="#" onClick={openInSnap}>Click here to open your project in Snap<i>!</i></a> (your browser may block this link),
-                    or <a href={projectURL} download={projectName + '.xml'}>click here to download your project.</a>
-                </span>
+                // <span>
+                //     Success! <a href="#" onClick={openInSnap}>Click here to open your project in Snap<i>!</i></a> (your browser may block this link),
+                //     or <a href={projectURL} download={projectName + '.xml'}>click here to download your project.</a>
+                // </span>
+
+                <a id="downloadXML" href={projectURL} download={projectName + '.xml'}>download xml</a>
             );
         } catch (err) {
             this.log(err.toString());

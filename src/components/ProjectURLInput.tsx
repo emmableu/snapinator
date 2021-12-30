@@ -42,7 +42,8 @@ export default class ProjectURLInput extends Component<Props, State> {
     render() {
         return (
             <div>
-             <input id='urlInput' class="url" value={this.state.projectID} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}/>
+             <input id='urlInput' class="url" value={this.state.projectID} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}
+             />
                <button id="urlInputButton" onClick={this.handleURLInputButtonClick.bind(this)}>enter</button>
             </div>
         );
