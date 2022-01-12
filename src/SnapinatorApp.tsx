@@ -24,6 +24,9 @@ import Project from './Project';
 import { serializeXML } from './xml';
 import { h, Component, ComponentChild } from 'preact';
 import { SB1File } from 'scratch-sb1-converter';
+import axios from 'axios';
+const BASE_URL = 'http://localhost:8080';
+
 
 export interface State {
     logs: ComponentChild[];
@@ -147,18 +150,22 @@ export default class SnapinatorApp extends Component<any, State> {
     writeProject(projectName: string, project: Project) {
         this.log(<span>Writing Snap<i>!</i> XML</span>);
         try {
+            // @ts-ignore
             const projectXML = serializeXML(project.toXML());
-            const projectURL = URL.createObjectURL(new Blob([projectXML], {type: 'text/xml'}));
+            // const projectURL = URL.createObjectURL(new Blob([projectXML], {type: 'text/xml'}));
             const openInSnap = () => {
                 window.open('https://snap.berkeley.edu/snap/snap.html#open:' + encodeURIComponent(projectXML), '_blank');
             };
             this.log(
-                // <span>
-                //     Success! <a href="#" onClick={openInSnap}>Click here to open your project in Snap<i>!</i></a> (your browser may block this link),
-                //     or <a href={projectURL} download={projectName + '.xml'}>click here to download your project.</a>
-                // </span>
-
-                <a id="downloadXML" href={projectURL} download={projectName + '.xml'}>download xml</a>
+                <div>
+                {/*<span>*/}
+                {/*    Success! <a href="#" onClick={openInSnap}>Click here to open your project in Snap<i>!</i></a> (your browser may block this link),*/}
+                {/*    or <a href={projectURL} download={projectName + '.xml'}>click here to download your project.</a>*/}
+                {/*</span>*/}
+                <div style={{visibility: "hidden"}}>
+                    <p id="downloadXML" style={{visibility: "hidden"}}>{encodeURIComponent(projectXML)}</p>
+                </div>
+                </div>
             );
         } catch (err) {
             this.log(err.toString());

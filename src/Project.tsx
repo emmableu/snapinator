@@ -164,7 +164,7 @@ export default class Project {
         return <custom-block s={'UNSUPPORTED: ' + op}/>
     }
 
-    toXML() {
+    toXML(): Element {
         return <project name={this.name} app="Snapinator" version="1">
             <notes>Converted by Snapinator</notes>
             {this.stage.toXML()}
