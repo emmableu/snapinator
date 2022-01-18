@@ -49,13 +49,14 @@ export default class SnapinatorApp extends Component<any, State> {
             <div class="in box">
                 <h1>Input</h1>
                 <p>Paste a Scratch project URL or ID:</p>
-                <ProjectURLInput onProjectID={this.getNonScripts.bind(this)}/>
+                <ProjectURLInput onProjectID={this.postSnapXML.bind(this)}/>
                 <p>Or load a project from a file:</p>
                 <input class="file" type="file" onInput={this.handleFile.bind(this)}/>
             </div>
             <div class="out box">
                 <h1>Output</h1>
-                <ul class="log">{this.state.logs}</ul>
+                <button id="refreshOutputLog" onClick={this.refreshOutput.bind(this)}>refresh output</button>
+                <ul id="outputLog" class="log">{this.state.logs}</ul>
             </div>
         </div>;
     }
@@ -68,8 +69,24 @@ export default class SnapinatorApp extends Component<any, State> {
         this.setState(({ logs }) => ({ logs: [...logs, <li>{msg}</li>] }));
     }
 
+    refreshOutput () {
+        this.setState(({logs})=> ({logs: []}));
+    }
+
+
+    async postSnapXML(projectID, type, projectJson) {
+        // console.log("projectJson: ", projectJson);
+        if (type === "asset") {
+            await this.getNonScripts(projectID);
+        }
+        else {
+            await this.getScriptsOnly(projectID, projectJson);
+        }
+    }
+
     async getNonScripts(projectID: string) {
         // projectID = "27-Flappy%20Parrot";
+        console.log("projectID: ", projectID);
         const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
@@ -82,13 +99,14 @@ export default class SnapinatorApp extends Component<any, State> {
         }
     }
 
-    async getScriptsOnly(projectID: string, projectScript: ArrayBuffer) {
+    async getScriptsOnly(projectID: string, projectScript: string) {
         // const projectID = "27-Flappy%20Parrot";
         // const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
         // if (!response.ok) {
         //     this.log(`Project "${projectID}" could not be retrieved`);
         //     return;
         // }
+        // console.log("getScriptsOnly: ", projectScript);
         const file = projectScript;
         const project = await this.readProject(projectID, file, false, true);
         if (project) {
@@ -110,33 +128,41 @@ export default class SnapinatorApp extends Component<any, State> {
         reader.readAsArrayBuffer(file);
     }
 
-    async readProject(projectName: string, file: ArrayBuffer, hasNonScripts: boolean, hasScripts: boolean): Promise<Project | null> {
+    async readProject(projectName: string, file: any, hasNonScripts: boolean, hasScripts: boolean): Promise<Project | null> {
         let zip: Archive;
         let jsonObj;
         this.log(`Reading project "${projectName}"`);
-        try {
-            jsonObj = JSON.parse(
-                new TextDecoder().decode(
-                    new Uint8Array(file)
-                )
-            );
-            zip = new AssetServer();
-        } catch (err) {
+
+        if (hasNonScripts) {
+            // console.log("file: ", file);
             try {
-                zip = await new ZipArchive().load(file);
-                const jsonText = await zip.file('project.json').text();
-                jsonObj = JSON.parse(jsonText);
+                jsonObj = JSON.parse(
+                    new TextDecoder().decode(
+                        new Uint8Array(file)
+                    )
+                );
+                zip = new AssetServer();
             } catch (err) {
                 try {
-                    const sb1 = new SB1File(file);
-                    jsonObj = sb1.json;
-                    zip = new SB1Archive(sb1.zip);
+                    zip = await new ZipArchive().load(file);
+                    const jsonText = await zip.file('project.json').text();
+                    jsonObj = JSON.parse(jsonText);
                 } catch (err) {
-                    this.log('Invalid project');
-                    return null;
+                    try {
+                        const sb1 = new SB1File(file);
+                        jsonObj = sb1.json;
+                        zip = new SB1Archive(sb1.zip);
+                    } catch (err) {
+                        this.log('Invalid project');
+                        return null;
+                    }
                 }
             }
         }
+        else {
+            jsonObj = JSON.parse(file);
+        }
+
         const project = new Project();
         try {
             await project.readProject(projectName, jsonObj, zip, this.log.bind(this), hasNonScripts, hasScripts);

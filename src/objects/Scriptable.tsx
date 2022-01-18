@@ -132,8 +132,8 @@ export default class Scriptable {
             }
             this.costumeIndex = jsonObj.currentCostume + 1;
 
-            this.readVariablesSB3(jsonObj, project);
         }
+        this.readVariablesSB3(jsonObj, project);
 
         // for (const commentID in commentMap) {
         //     if (commentMap.hasOwnProperty(commentID)) {

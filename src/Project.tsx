@@ -42,6 +42,7 @@ export default class Project {
     hasBackdropEvents: boolean;
 
     async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void, hasNonScripts: boolean, hasScripts: boolean) {
+        console.log("jsonObj: ", jsonObj);
         this.name = name;
         this.jsonObj = jsonObj;
         this.zip = zip;
@@ -54,8 +55,11 @@ export default class Project {
             this.stage = new Stage().readSB2(this.jsonObj, this);
         } else if (this.jsonObj.targets) { // Scratch 3.0 project
             const stageObj = this.jsonObj.targets.find((obj) => obj.isStage);
-            this.media = await this.readMediaSB3();
+            if (hasNonScripts === true) {
+                this.media = await this.readMediaSB3();
+            }
             this.globalVars = new VariableFrame().readScriptableSB3(stageObj);
+            console.log("this.globalVars: ", this.globalVars);
             this.stage = new Stage().readProjectSB3(this.jsonObj, this, hasNonScripts, hasScripts);
         }
 

@@ -18,32 +18,31 @@
 
 */
 
-import { h, Component } from 'preact';
+import { h, Component, createRef } from 'preact';
 
 
 export interface Props {
-    onProjectID: (projectID: string) => void;
+    onProjectID: (projectID: string, type: string, projectJson: any) => void;
 }
 
-export interface State {
-    projectID: string,
-}
 
-export default class ProjectURLInput extends Component<Props, State> {
+export default class ProjectURLInput extends Component<Props> {
     timeoutID: number;
+    urlInputRef: any;
+    projectJsonInputRef: any;
 
     constructor(props) {
         super(props);
-        this.state = {
-            projectID: '',
-        };
+        this.urlInputRef = createRef();
+        this.projectJsonInputRef = createRef();
     }
+
 
     render() {
         return (
             <div>
-             <input id='urlInput' class="url" value={this.state.projectID} onFocus={this.handleFocus.bind(this)} onInput={this.handleInput.bind(this)}
-             />
+             <input ref={this.projectJsonInputRef} id="projectJsonInput" style={{visibility: "hidden"}}></input>
+             <input id='urlInput' class="url" ref={this.urlInputRef}/>
                <button id="urlInputButton" onClick={this.handleURLInputButtonClick.bind(this)}>enter</button>
             </div>
         );
@@ -54,35 +53,19 @@ export default class ProjectURLInput extends Component<Props, State> {
             window.clearTimeout(this.timeoutID);
         }
     }
-
-    handleFocus(e) {
-        if (this.state.projectID !== '') {
-            e.target.select();
-        }
-    }
-
-    handleInput(e) {
-        // const numbers = e.target.value.match(/\d+/g) || [''];
-        // const id = numbers[0];
-        let id = e.target.value;
-        // id = "27-Flappy%20Parrot";
-        this.setState({
-            projectID: id,
-        });
-        // if (newProjectURL !== this.state.projectURL) {
-        //     if (this.timeoutID != null) {
-        //         window.clearTimeout(this.timeoutID);
-        //     }
-        //     if (id !== '' && this.props.onProjectID) {
-        //         this.timeoutID = window.setTimeout(() => {
-        //             this.props.onProjectID(id);
-        //             this.timeoutID = null;
-        //         }, 500);
-        //     }
-        // }
-    }
+    
 
     handleURLInputButtonClick (e) {
-        this.props.onProjectID(this.state.projectID);
+        // @ts-ignore
+        let id = this.urlInputRef.current.value;
+        // id = "asset[DELIM]27-Flappy%20Parrot";
+        const words = id.split("[DELIM]");
+        if (words.length == 2) {
+            const type = id.split("[DELIM]")[0]; 
+            const projectID = id.split("[DELIM]")[1];
+            const projectJson = this.projectJsonInputRef.current.value;
+            this.props.onProjectID(projectID, type, projectJson);
+
+        }
     }
 }
