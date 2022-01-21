@@ -76,11 +76,30 @@ export default class SnapinatorApp extends Component<any, State> {
 
     async postSnapXML(projectID, type, projectJson) {
         // console.log("projectJson: ", projectJson);
+        if (type === "full") {
+            await this.getFullScripts(projectID);
+        }
         if (type === "asset") {
             await this.getNonScripts(projectID);
         }
         else {
             await this.getScriptsOnly(projectID, projectJson);
+        }
+    }
+
+
+    async getFullScripts(projectID: string) {
+        // projectID = "27-Flappy%20Parrot";
+        console.log("projectID: ", projectID);
+        const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
+        if (!response.ok) {
+            this.log(`Project "${projectID}" could not be retrieved`);
+            return;
+        }
+        const file = await response.arrayBuffer();
+        const project = await this.readProject(projectID, file, true, true);
+        if (project) {
+            this.writeProject(projectID, project);
         }
     }
 
