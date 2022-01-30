@@ -53,7 +53,7 @@ export default class ProjectURLInput extends Component<Props> {
             window.clearTimeout(this.timeoutID);
         }
     }
-    
+
 
     handleURLInputButtonClick (e) {
         // @ts-ignore
@@ -61,9 +61,10 @@ export default class ProjectURLInput extends Component<Props> {
         // id = "asset[DELIM]27-Flappy%20Parrot";
         const words = id.split("[DELIM]");
         if (words.length == 2) {
-            const type = id.split("[DELIM]")[0]; 
+            const type = id.split("[DELIM]")[0];
             const projectID = id.split("[DELIM]")[1];
             const projectJson = this.projectJsonInputRef.current.value;
+            console.log('projectJson: ', projectJson);
             this.props.onProjectID(projectID, type, projectJson);
 
         }

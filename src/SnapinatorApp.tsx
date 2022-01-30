@@ -25,7 +25,7 @@ import { serializeXML } from './xml';
 import { h, Component, ComponentChild } from 'preact';
 import { SB1File } from 'scratch-sb1-converter';
 import axios from 'axios';
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8082';
 
 
 export interface State {
@@ -74,62 +74,64 @@ export default class SnapinatorApp extends Component<any, State> {
     }
 
 
-    async postSnapXML(projectID, type, projectJson) {
-        // console.log("projectJson: ", projectJson);
-        if (type === "full") {
-            await this.getFullScripts(projectID);
+    async postSnapXML(projectID, type, projectJsonAggregate) {
+        projectJsonAggregate = JSON.parse(projectJsonAggregate);
+        let res = {};
+
+        for (const [actorName, sliceMap] of Object.entries(projectJsonAggregate)) {
+            if (actorName === "full") {
+                if (type === "original") {
+                    res['full'] = await this.getFullScripts(projectID);
+                }
+                else if (type === "asset") {
+                    res['full'] = await this.getNonScripts(projectID);
+                    return;
+                }
+                else {
+                    res['full'] = await this.getScriptsOnly(projectID, sliceMap["all"]);
+                }
+            }
+            else {
+                res[actorName] = {};
+                for (const [attributeName, programJson] of Object.entries(sliceMap) ) {
+                    res[actorName][attributeName] = await this.getScriptsOnly(projectID, programJson);
+                }
+            }
         }
-        if (type === "asset") {
-            await this.getNonScripts(projectID);
-        }
-        else {
-            await this.getScriptsOnly(projectID, projectJson);
-        }
+
+        this.writeObj(projectID, res);
     }
 
 
     async getFullScripts(projectID: string) {
-        // projectID = "27-Flappy%20Parrot";
         console.log("projectID: ", projectID);
-        const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
+        const response = await fetch(`http://localhost:8082/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
         }
         const file = await response.arrayBuffer();
         const project = await this.readProject(projectID, file, true, true);
-        if (project) {
-            this.writeProject(projectID, project);
-        }
+        return this.toUrl(project)
     }
 
     async getNonScripts(projectID: string) {
         // projectID = "27-Flappy%20Parrot";
         console.log("projectID: ", projectID);
-        const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
+        const response = await fetch(`http://localhost:8082/project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
         }
         const file = await response.arrayBuffer();
         const project = await this.readProject(projectID, file, true, false);
-        if (project) {
-            this.writeProject(projectID, project);
-        }
+        return this.toUrl(project);
     }
 
     async getScriptsOnly(projectID: string, projectScript: string) {
-        // const projectID = "27-Flappy%20Parrot";
-        // const response = await fetch(`http://localhost:8080/project/${projectID}/project.json`);
-        // if (!response.ok) {
-        //     this.log(`Project "${projectID}" could not be retrieved`);
-        //     return;
-        // }
-        // console.log("getScriptsOnly: ", projectScript);
-        const file = projectScript;
-        const project = await this.readProject(projectID, file, false, true);
+        const project = await this.readProject(projectID, projectScript, false, true);
         if (project) {
-            this.writeProject(projectID, project);
+            return this.toUrl(project);
         }
     }
 
@@ -179,7 +181,7 @@ export default class SnapinatorApp extends Component<any, State> {
             }
         }
         else {
-            jsonObj = JSON.parse(file);
+            jsonObj = file;
         }
 
         const project = new Project();
@@ -190,6 +192,25 @@ export default class SnapinatorApp extends Component<any, State> {
             return null;
         }
         return project;
+    }
+
+    toUrl(project:Project) {
+        return encodeURIComponent(serializeXML(project.toXML()))
+    }
+
+    writeObj(projectName: string, obj: any) {
+        try {
+            // @ts-ignore
+            this.log(
+                <div>
+                    <div style={{visibility: "hidden"}}>
+                        <p id="downloadXML" style={{visibility: "hidden"}}>{JSON.stringify(obj)}</p>
+                    </div>
+                </div>
+            );
+        } catch (err) {
+            this.log(err.toString());
+        }
     }
 
     writeProject(projectName: string, project: Project) {
