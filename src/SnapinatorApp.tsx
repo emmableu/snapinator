@@ -75,21 +75,21 @@ export default class SnapinatorApp extends Component<any, State> {
 
 
     async postSnapXML(projectID, type, projectJsonAggregate) {
-        projectJsonAggregate = JSON.parse(projectJsonAggregate);
         let res = {};
-
+        if (type === "asset") {
+            res['full'] = await this.getNonScripts(projectID);
+            this.writeObj(projectID, res);
+            return;
+        }
+        projectJsonAggregate = JSON.parse(projectJsonAggregate);
         for (const [actorName, sliceMap] of Object.entries(projectJsonAggregate)) {
             if (actorName === "full") {
-                if (type === "original") {
-                    res['full'] = await this.getFullScripts(projectID);
-                }
-                else if (type === "asset") {
-                    res['full'] = await this.getNonScripts(projectID);
-                    return;
-                }
-                else {
-                    res['full'] = await this.getScriptsOnly(projectID, sliceMap["all"]);
-                }
+                // if (type === "original") {
+                //     res['full'] = await this.getFullScripts(projectID);
+                // }
+                // else {
+                res['full'] = await this.getScriptsOnly(projectID, sliceMap["all"]);
+                // }
             }
             else {
                 res[actorName] = {};
@@ -103,6 +103,7 @@ export default class SnapinatorApp extends Component<any, State> {
     }
 
 
+
     async getFullScripts(projectID: string) {
         console.log("projectID: ", projectID);
         const response = await fetch(`http://localhost:8082/project/${projectID}/project.json`);
@@ -111,7 +112,7 @@ export default class SnapinatorApp extends Component<any, State> {
             return;
         }
         const file = await response.arrayBuffer();
-        const project = await this.readProject(projectID, file, true, true);
+        const project = await this.readProject(projectID, file, false, true);
         return this.toUrl(project)
     }
 
@@ -124,6 +125,7 @@ export default class SnapinatorApp extends Component<any, State> {
             return;
         }
         const file = await response.arrayBuffer();
+        console.log("getNonScripts: ", projectID);
         const project = await this.readProject(projectID, file, true, false);
         return this.toUrl(project);
     }

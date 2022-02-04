@@ -176,6 +176,7 @@ export default class Block {
     spec: string;
     args: any[];
     comment?: ScriptComment;
+    blockID: string;
 
     initForVar(varName: string) {
         this.op = 'data_variable';
@@ -264,6 +265,7 @@ export default class Block {
         blockComments: {[s: string]: ScriptComment},
         variables: VariableFrame,
     ): Block {
+        this.blockID = blockID;
         const jsonObj = blockMap[blockID];
 
         if (Array.isArray(jsonObj)) { // primitive array
@@ -395,9 +397,9 @@ export default class Block {
         };
 
         const tellStageTo = (block: any) => {
-            return <block s="doTellTo">
+            return <block scratchBlockID={this.blockID} s="doTellTo">
                 <l>Stage</l>
-                <block s="reifyScript">
+                <block scratchBlockID={this.blockID} s="reifyScript">
                     <script>{block}</script>
                     <list/>
                 </block>
@@ -410,11 +412,11 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['data_variable'] =
         SPECIAL_CASE_BLOCKS['argument_reporter_string_number'] =
         SPECIAL_CASE_BLOCKS['argument_reporter_boolean'] = () => {
-            return <block var={this.args[0].value}/>;
+            return <block scratchBlockID={this.blockID} var={this.args[0].value}/>;
         };
 
         SPECIAL_CASE_BLOCKS['data_listcontents'] = () => {
-            return <block s="reportJoinWords">
+            return <block scratchBlockID={this.blockID} s="reportJoinWords">
                 {argToXML(this.args[0])}
             </block>;
         };
@@ -428,27 +430,27 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['motion_glideto'] = () => {
             const component = (objName, x) => {
                 if (objName.value === '_mouse_') {
-                    return <block s={x ? 'reportMouseX' : 'reportMouseY'}/>;
+                    return <block scratchBlockID={this.blockID} s={x ? 'reportMouseX' : 'reportMouseY'}/>;
                 }
                 if (objName.value === '_random_') {
-                    return <block s="reportRandom">
-                        <block s="reportAttributeOf">
+                    return <block scratchBlockID={this.blockID} s="reportRandom">
+                        <block scratchBlockID={this.blockID} s="reportAttributeOf">
                             <l><option>{x ? 'left' : 'bottom'}</option></l>
                             <l>Stage</l>
                         </block>
-                        <block s="reportAttributeOf">
+                        <block scratchBlockID={this.blockID} s="reportAttributeOf">
                             <l><option>{x ? 'right' : 'top'}</option></l>
                             <l>Stage</l>
                         </block>
                     </block>;
                 }
-                return <block s="reportAttributeOf">
+                return <block scratchBlockID={this.blockID} s="reportAttributeOf">
                     <l><option>{x ? 'x position' : 'y position'}</option></l>
                     {argToXML(objName)}
                 </block>;
             };
 
-            return <block s="doGlide">{[
+            return <block scratchBlockID={this.blockID} s="doGlide">{[
                 argToXML(this.args[0]),
                 component(this.args[1], true),
                 component(this.args[1], false),
@@ -461,14 +463,14 @@ export default class Block {
                 'all around': 1,
                 'left-right': 2,
             };
-            return <block s="doSetVar">
+            return <block scratchBlockID={this.blockID} s="doSetVar">
                 <l><option>rotation style</option></l>
                 <l>{ROTATION_STYLES[this.args[0].value] || 0}</l>
             </block>
         };
 
         SPECIAL_CASE_BLOCKS['comeToFront'] = () => {
-            return <block s="goToLayer">
+            return <block scratchBlockID={this.blockID} s="goToLayer">
                 <l><option>front</option></l>
             </block>;
         };
@@ -476,8 +478,8 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['looks_goforwardbackwardlayers'] = () => {
             if (this.args[0].value === 'forward') {
                 if (this.args[1] instanceof Block) {
-                    return <block s="goBack">
-                        <block s="reportDifference">
+                    return <block scratchBlockID={this.blockID} s="goBack">
+                        <block scratchBlockID={this.blockID} s="reportDifference">
                             <l>0</l>
                             {argToXML(this.args[1])}
                         </block>
@@ -486,13 +488,13 @@ export default class Block {
                     this.args[1].value = -this.args[1].value;
                 }
             }
-            return <block s="goBack">{argToXML(this.args[1])}</block>;
+            return <block scratchBlockID={this.blockID} s="goBack">{argToXML(this.args[1])}</block>;
         };
 
         SPECIAL_CASE_BLOCKS['costumeName'] = () => {
-            return <block s="reportAttributeOf">
+            return <block scratchBlockID={this.blockID} s="reportAttributeOf">
                 <l><option>costume name</option></l>
-                <block s="reportObject">
+                <block scratchBlockID={this.blockID} s="reportObject">
                     <l><option>myself</option></l>
                 </block>
             </block>;
@@ -501,7 +503,7 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['looks_costumenumbername'] = () => {
             const arg = this.args[0].value;
             if (arg === 'number') {
-                return <block s="getCostumeIdx"/>
+                return <block scratchBlockID={this.blockID} s="getCostumeIdx"/>
             }
             return SPECIAL_CASE_BLOCKS['costumeName']();
         };
@@ -511,19 +513,19 @@ export default class Block {
             if (arg instanceof Primitive) {
                 const backdrop = arg.value;
                 if (backdrop === 'next backdrop') {
-                    result = <block s="doWearNextCostume"/>;
+                    result = <block scratchBlockID={this.blockID} s="doWearNextCostume"/>;
                 } else if (backdrop === 'previous backdrop') {
-                    result = <block s="doSwitchToCostume">
-                        <block s="reportDifference">
+                    result = <block scratchBlockID={this.blockID} s="doSwitchToCostume">
+                        <block scratchBlockID={this.blockID} s="reportDifference">
                             <l>0</l>
                             <l>1</l>
                         </block>
                     </block>;
                 } else if (backdrop === 'random backdrop') {
-                    result = <block s="doSwitchToCostume">
-                        <block s="reportListItem">
+                    result = <block scratchBlockID={this.blockID} s="doSwitchToCostume">
+                        <block scratchBlockID={this.blockID} s="reportListItem">
                             <l><option>any</option></l>
-                            <block s="reportGet">
+                            <block scratchBlockID={this.blockID} s="reportGet">
                                 <l><option>costumes</option></l>
                             </block>
                         </block>
@@ -531,7 +533,7 @@ export default class Block {
                 }
             }
             if (!result) {
-                result = <block s="doSwitchToCostume">
+                result = <block scratchBlockID={this.blockID} s="doSwitchToCostume">
                     {argToXML(arg)}
                 </block>;
             }
@@ -546,11 +548,11 @@ export default class Block {
             if (scriptable.project.hasBackdropEvents) {
                 result = [
                     result,
-                    <block s="doBroadcast">
-                        <block s="reportJoinWords">
+                    <block scratchBlockID={this.blockID} s="doBroadcast">
+                        <block scratchBlockID={this.blockID} s="reportJoinWords">
                             <list>
                                 <l>backdrop switched to </l>
-                                <block s="reportAttributeOf">
+                                <block scratchBlockID={this.blockID} s="reportAttributeOf">
                                     <l><option>costume name</option></l>
                                     <l>Stage</l>
                                 </block>
@@ -565,11 +567,11 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['looks_switchbackdroptoandwait'] = () => {
             return [
                 switchBackdropTo(this.args[0]),
-                <block s="doBroadcastAndWait">
-                    <block s="reportJoinWords">
+                <block scratchBlockID={this.blockID} s="doBroadcastAndWait">
+                    <block scratchBlockID={this.blockID} s="reportJoinWords">
                         <list>
                             <l>backdrop switched to </l>
-                            <block s="reportAttributeOf">
+                            <block scratchBlockID={this.blockID} s="reportAttributeOf">
                                 <l><option>costume name</option></l>
                                 <l>Stage</l>
                             </block>
@@ -580,13 +582,13 @@ export default class Block {
         };
 
         SPECIAL_CASE_BLOCKS['event_whenbackdropswitchesto'] = () => {
-            return <block s="receiveMessage">
+            return <block scratchBlockID={this.blockID} s="receiveMessage">
                 <l>{'backdrop switched to ' + this.args[0].value}</l>
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['looks_nextbackdrop'] = () => {
-            let result = <block s="doWearNextCostume"/>;
+            let result = <block scratchBlockID={this.blockID} s="doWearNextCostume"/>;
             if (!scriptable.isStage) {
                 result = tellStageTo(result);
             }
@@ -595,16 +597,16 @@ export default class Block {
 
         SPECIAL_CASE_BLOCKS['backgroundIndex'] = () => {
             if (scriptable.isStage) {
-                return <block s="getCostumeIdx"/>;
+                return <block scratchBlockID={this.blockID} s="getCostumeIdx"/>;
             }
-            return <block s="reportAttributeOf">
+            return <block scratchBlockID={this.blockID} s="reportAttributeOf">
                 <l><option>costume #</option></l>
                 <l>Stage</l>
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['sceneName'] = () => {
-            return <block s="reportAttributeOf">
+            return <block scratchBlockID={this.blockID} s="reportAttributeOf">
                 <l><option>costume name</option></l>
                 <l>Stage</l>
             </block>;
@@ -613,17 +615,17 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['looks_backdropnumbername'] = () => {
             const arg = this.args[0].value;
             if (arg === 'number' && scriptable.isStage) {
-                return <block s="getCostumeIdx"/>;
+                return <block scratchBlockID={this.blockID} s="getCostumeIdx"/>;
             }
             const newArg = arg === 'number' ? 'costume #' : 'costume name';
-            return <block s="reportAttributeOf">
+            return <block scratchBlockID={this.blockID} s="reportAttributeOf">
                 <l><option>{newArg}</option></l>
                 <l>Stage</l>
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['event_whenthisspriteclicked'] = () => {
-            return <block s="receiveInteraction">
+            return <block scratchBlockID={this.blockID} s="receiveInteraction">
                 <l><option>pressed</option></l>
             </block>;
         };
@@ -634,14 +636,14 @@ export default class Block {
                 // If the argument is a sprite, Scratch returns true only if the calling
                 // sprite is visible. In Snap!, it doesn't matter, so insert a "shown?" block.
                 // If the argument is a reporter, just assume it returns a sprite.
-                return <block s="reportAnd">
-                    <block s="reportShown"/>
-                    <block s="reportTouchingObject">
+                return <block scratchBlockID={this.blockID} s="reportAnd">
+                    <block scratchBlockID={this.blockID} s="reportShown"/>
+                    <block scratchBlockID={this.blockID} s="reportTouchingObject">
                         {argToXML(arg)}
                     </block>
                 </block>;
             }
-            return <block s="reportTouchingObject">
+            return <block scratchBlockID={this.blockID} s="reportTouchingObject">
                 {argToXML(arg)}
             </block>;
         };
@@ -649,18 +651,18 @@ export default class Block {
         SPECIAL_CASE_BLOCKS['videoSensing_videoToggle'] = () => {
             const arg = this.args[0].value;
             if (arg === 'off') {
-                return <block s="doSetGlobalFlag">
+                return <block scratchBlockID={this.blockID} s="doSetGlobalFlag">
                     <l><option>video capture</option></l>
                     <l><bool>false</bool></l>
                 </block>;
             }
             const mirror = arg === 'on';
             return [
-                <block s="doSetGlobalFlag">
+                <block scratchBlockID={this.blockID} s="doSetGlobalFlag">
                     <l><option>video capture</option></l>
                     <l><bool>true</bool></l>
                 </block>,
-                <block s="doSetGlobalFlag">
+                <block scratchBlockID={this.blockID} s="doSetGlobalFlag">
                     <l><option>mirror video</option></l>
                     <l><bool>{mirror}</bool></l>
                 </block>,
@@ -668,7 +670,7 @@ export default class Block {
         };
 
         SPECIAL_CASE_BLOCKS['operator_join'] = () => {
-            return <block s="reportJoinWords">
+            return <block scratchBlockID={this.blockID} s="reportJoinWords">
                 <list>
                     {argToXML(this.args[0])}
                     {argToXML(this.args[1])}
@@ -677,35 +679,35 @@ export default class Block {
         };
 
         SPECIAL_CASE_BLOCKS['pen_changePenHueBy'] = () => {
-            return <block s="changePenHSVA">
+            return <block scratchBlockID={this.blockID} s="changePenHSVA">
                 <l><option>hue</option></l>
                 {argToXML(this.args[0])}
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_setPenHueToNumber'] = () => {
-            return <block s="setPenHSVA">
+            return <block scratchBlockID={this.blockID} s="setPenHSVA">
                 <l><option>hue</option></l>
                 {argToXML(this.args[0])}
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_changePenShadeBy'] = () => {
-            return <block s="changePenHSVA">
+            return <block scratchBlockID={this.blockID} s="changePenHSVA">
                 <l><option>brightness</option></l>
                 {argToXML(this.args[0])}
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['pen_setPenShadeToNumber'] = () => {
-            return <block s="setPenHSVA">
+            return <block scratchBlockID={this.blockID} s="setPenHSVA">
                 <l><option>brightness</option></l>
                 {argToXML(this.args[0])}
             </block>;
         };
 
         SPECIAL_CASE_BLOCKS['data_deletealloflist'] = () => {
-            return <block s="doDeleteFromList">
+            return <block scratchBlockID={this.blockID} s="doDeleteFromList">
                 <l><option>all</option></l>
                 {argToXML(this.args[0])}
             </block>;
@@ -717,7 +719,7 @@ export default class Block {
         } else {
             const snapOp = SB3_TO_SNAP_OP_MAP[this.op];
             if (snapOp) {
-                element = <block s={snapOp}>{this.args.map(argToXML)}</block>;
+                element = <block scratchBlockID={this.blockID} s={snapOp}>{this.args.map(argToXML)}</block>;
             } else {
                 element = scriptable.project.unsupportedBlock(this.op, isArg);
             }

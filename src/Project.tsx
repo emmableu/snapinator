@@ -42,7 +42,7 @@ export default class Project {
     hasBackdropEvents: boolean;
 
     async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void, hasNonScripts: boolean, hasScripts: boolean) {
-        console.log("jsonObj: ", jsonObj);
+        // console.log("jsonObj: ", jsonObj);
         this.name = name;
         this.jsonObj = jsonObj;
         this.zip = zip;
