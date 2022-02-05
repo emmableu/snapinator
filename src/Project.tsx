@@ -33,6 +33,7 @@ export default class Project {
     jsonObj: any;
     zip: Archive;
     log: (msg: any) => void;
+    baseUrl: string;
 
     unsupportedOps: {[op: string]: boolean};
     media: {[id: string]: MediaFile};
@@ -41,14 +42,16 @@ export default class Project {
 
     hasBackdropEvents: boolean;
 
-    async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void, hasNonScripts: boolean, hasScripts: boolean) {
+    async readProject(name: string, jsonObj: any, zip: Archive, log: (msg: any) => void, baseUrl: string, hasNonScripts: boolean, hasScripts: boolean) {
         // console.log("jsonObj: ", jsonObj);
         this.name = name;
         this.jsonObj = jsonObj;
         this.zip = zip;
         this.log = log;
+        this.baseUrl = baseUrl;
 
         this.unsupportedOps = {};
+        console.log("this.jsonObj: ", this.jsonObj);
         if (this.jsonObj.children) { // Scratch 2.0 project
             this.media = await this.readMediaSB2();
             this.globalVars = new VariableFrame().readScriptableSB2(this.jsonObj);
@@ -81,7 +84,7 @@ export default class Project {
                     const baseLayerAssetID = this.zip instanceof AssetServer ? baseLayerMD5 : costumeObj.baseLayerID;
                     if (!media[baseLayerMD5Ext]) {
                         const baseLayerFile: ImageFile = await new ImageFile().load(
-                            this.zip, baseLayerAssetID, baseLayerExt, this.log, 2, costumeObj.bitmapResolution
+                            this.zip, baseLayerAssetID, baseLayerExt, this.log, this.baseUrl, 2, costumeObj.bitmapResolution
                         );
                         media[baseLayerMD5Ext] = baseLayerFile;
                     }
@@ -92,7 +95,7 @@ export default class Project {
                         const textLayerAssetID = this.zip instanceof AssetServer ? textLayerMD5 : costumeObj.textLayerID;
                         if (!media[textLayerMD5Ext]) {
                             const textLayerFile: ImageFile = await new ImageFile().load(
-                                this.zip, textLayerAssetID, textLayerExt, this.log, 2, costumeObj.bitmapResolution
+                                this.zip, textLayerAssetID, textLayerExt, this.log, this.baseUrl, 2, costumeObj.bitmapResolution
                             );
                             media[textLayerMD5Ext] = textLayerFile;
                         }
@@ -110,7 +113,7 @@ export default class Project {
                     const [md5, ext] = md5Ext.split('.');
                     const assetID = this.zip instanceof AssetServer ? md5: soundObj.soundID;
                     if (!media[md5Ext]) {
-                        const file: SoundFile = await new SoundFile().load(this.zip, assetID, ext, this.log);
+                        const file: SoundFile = await new SoundFile().load(this.zip, assetID, ext, this.log, this.baseUrl);
                         media[md5Ext] = file;
                     }
                 }
@@ -138,7 +141,7 @@ export default class Project {
                 const md5Ext = costumeObj.md5ext;
                 if (!media[md5Ext]) {
                     const file: ImageFile = await new ImageFile().load(
-                        this.zip, costumeObj.assetId, costumeObj.dataFormat, this.log, 3, costumeObj.bitmapResolution
+                        this.zip, costumeObj.assetId, costumeObj.dataFormat, this.log, this.baseUrl, 3, costumeObj.bitmapResolution
                     );
                     media[md5Ext] = file;
                 }
@@ -147,7 +150,7 @@ export default class Project {
             for (const soundObj of soundObjs) {
                 const md5Ext = soundObj.md5ext;
                 if (!media[md5Ext]) {
-                    const file: SoundFile = await new SoundFile().load(this.zip, soundObj.assetId, soundObj.dataFormat, this.log);
+                    const file: SoundFile = await new SoundFile().load(this.zip, soundObj.assetId, soundObj.dataFormat, this.log, this.baseUrl);
                     media[md5Ext] = file;
                 }
             }

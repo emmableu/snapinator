@@ -24,22 +24,23 @@ import * as Base64 from 'base64-js';
 import loadSvgString from 'scratch-svg-renderer/src/load-svg-string';
 
 export default class ImageFile extends MediaFile {
-    async load(zip: Archive, assetID: string, dataFormat: string, log: (msg: any) => void, scratchVersion: number, resolution: number): Promise<ImageFile> {
+    async load(zip: Archive, assetID: string, dataFormat: string, log: (msg: any) => void, baseUrl, scratchVersion: number, resolution: number): Promise<ImageFile> {
         this.dataFormat = dataFormat;
         const fileName = assetID + '.' + dataFormat;
+        console.log("assetId: ", assetID, "dataformat: ", dataFormat);
         const file = zip.file(fileName);
         if (!file) {
             throw new Error(`${fileName} does not exist`);
         }
         if (dataFormat === 'svg') {
-            let svgString = await file.text();
+            let svgString = await file.text(baseUrl);
             this.data = Base64.fromByteArray(
                 new TextEncoder().encode(
                     this.fixSVG(svgString, scratchVersion)
                 )
             );
         } else {
-            await super.load(zip, assetID, dataFormat, log);
+            await super.load(zip, assetID, dataFormat, log, baseUrl);
             if (resolution !== 1) {
                 await this.fixResolution(resolution);
             }

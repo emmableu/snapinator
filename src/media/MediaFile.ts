@@ -29,14 +29,14 @@ export default class MediaFile {
         this.dataIsURL = false;
     }
 
-    async load(zip: Archive, assetID: string, dataFormat: string, log: (msg: any) => void, scratchVersion?: number, resolution?: number): Promise<MediaFile> {
+    async load(zip: Archive, assetID: string, dataFormat: string, log: (msg: any) => void, baseUrl: string, scratchVersion?: number, resolution?: number): Promise<MediaFile> {
         this.dataFormat = dataFormat;
         const fileName = assetID + '.' + dataFormat;
         const file = zip.file(fileName);
         if (!file) {
             throw new Error(`${fileName} does not exist`);
         }
-        this.data = await file.base64();
+        this.data = await file.base64(baseUrl);
         return this;
     }
 

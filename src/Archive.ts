@@ -22,14 +22,14 @@ import * as Base64 from 'base64-js';
 import * as unzipit from 'unzipit';
 
 export abstract class ArchiveEntry {
-    abstract uint8array(): Promise<Uint8Array>;
+    abstract uint8array(baseUrl:string): Promise<Uint8Array>;
 
-    async base64(): Promise<string> {
-        return Base64.fromByteArray(await this.uint8array());
+    async base64(baseUrl:string): Promise<string> {
+        return Base64.fromByteArray(await this.uint8array(baseUrl));
     }
 
-    async text(): Promise<string> {
-        return new TextDecoder().decode(await this.uint8array());
+    async text(baseUrl:string): Promise<string> {
+        return new TextDecoder().decode(await this.uint8array(baseUrl));
     }
 }
 
@@ -99,8 +99,14 @@ export class AssetServerEntry extends ArchiveEntry {
         this.fileName = fileName;
     }
 
-    async uint8array(): Promise<Uint8Array> {
-        const response = await fetch(`https://assets.scratch.mit.edu/internalapi/asset/${this.fileName}/get/`);
+    async uint8array(baseUrl:string): Promise<Uint8Array> {
+        let response;
+        if (baseUrl === "https://assets.scratch.mit.edu/internalapi/asset/") {
+            response = await fetch(`https://assets.scratch.mit.edu/internalapi/asset/${this.fileName}/get/`);
+        }
+        else {
+            response = await fetch(`${baseUrl}${this.fileName}`);
+        }
         return new Uint8Array(await response.arrayBuffer());
     }
 }
