@@ -24,6 +24,7 @@ import Project from './Project';
 import { serializeXML } from './xml';
 import { h, Component, ComponentChild } from 'preact';
 import { SB1File } from 'scratch-sb1-converter';
+import globalConfig  from '../globalConfig.ignore';
 import axios from 'axios';
 
 
@@ -75,7 +76,7 @@ export default class SnapinatorApp extends Component<any, State> {
 
     async postSnapXML(projectID, type, projectJsonAggregate) {
         let res = {};
-        const baseUrl = type === "csc110" ? "http://localhost:1000/" : "https://assets.scratch.mit.edu/internalapi/asset/";
+        const baseUrl = type === "csc110" ? globalConfig.csc110ServerURL : "https://assets.scratch.mit.edu/internalapi/asset/";
 
         if (type === "asset") {
             res['full'] = await this.getNonScripts(projectID, baseUrl);
@@ -89,12 +90,12 @@ export default class SnapinatorApp extends Component<any, State> {
         }
         projectJsonAggregate = JSON.parse(projectJsonAggregate);
         for (const [actorName, sliceMap] of Object.entries(projectJsonAggregate)) {
-            if (actorName === "full") {
+            if (actorName === "full" || actorName === "hidecode") {
                 // if (type === "original") {
                 //     res['full'] = await this.getFullScripts(projectID);
                 // }
                 // else {
-                res['full'] = await this.getScriptsOnly(projectID, sliceMap["all"], baseUrl);
+                res[actorName] = await this.getScriptsOnly(projectID, sliceMap["all"], baseUrl);
                 // }
             }
             else {
@@ -112,7 +113,7 @@ export default class SnapinatorApp extends Component<any, State> {
 
     async getFullScripts(projectID: string, baseUrl:string) {
         console.log("projectID: ", projectID);
-        const response = await fetch(`http://localhost:8082/project/${projectID}/project.json`);
+        const response = await fetch(`${globalConfig.snapReplayURL}project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
@@ -125,7 +126,7 @@ export default class SnapinatorApp extends Component<any, State> {
     async getNonScripts(projectID: string, baseUrl:string) {
         // projectID = "27-Flappy%20Parrot";
         console.log("projectID: ", projectID);
-        const response = await fetch(`http://localhost:8082/project/${projectID}/project.json`);
+        const response = await fetch(`${globalConfig.snapReplayURL}project/${projectID}/project.json`);
         if (!response.ok) {
             this.log(`Project "${projectID}" could not be retrieved`);
             return;
