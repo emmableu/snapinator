@@ -75,36 +75,45 @@ export default class SnapinatorApp extends Component<any, State> {
 
 
     async postSnapXML(projectID, type, projectJsonAggregate) {
+        // can have the following types: "csc110", "script_no_asset_and_slice", "script_and_asset_no_slice", "script_and_asset_and_slice"
         let res = {};
         const baseUrl = type === "csc110" ? globalConfig.csc110ServerURL : "https://assets.scratch.mit.edu/internalapi/asset/";
 
-        if (type === "asset") {
+        if (type === "asset") { // we actually no longer have this type
             res['full'] = await this.getNonScripts(projectID, baseUrl);
             this.writeObj(projectID, res);
             return;
         }
-        if (type === "csc110") {
+
+        else if (type === "csc110") {
             res = await this.jsonToFullScripts(projectID, projectJsonAggregate, baseUrl);
             this.writeObj(projectID, res);
             return;
         }
-        projectJsonAggregate = JSON.parse(projectJsonAggregate);
-        for (const [actorName, sliceMap] of Object.entries(projectJsonAggregate)) {
-            if (actorName === "full" || actorName === "hidecode") {
-                // if (type === "original") {
-                //     res['full'] = await this.getFullScripts(projectID);
-                // }
-                // else {
-                res[actorName] = await this.getScriptsOnly(projectID, sliceMap["all"], baseUrl);
-                // }
-            }
-            else {
-                res[actorName] = {};
-                for (const [attributeName, programJson] of Object.entries(sliceMap) ) {
-                    res[actorName][attributeName] = await this.getScriptsOnly(projectID, programJson, baseUrl);
+
+
+        else if (type === "script_and_asset_no_slice") { // for snap replay control condition, this is for all the time; 
+            // for snap replay experiment condition, this is for loading in step 1. 
+            res['full'] = await this.getFullScripts(projectID, baseUrl);
+            this.writeObj(projectID, res);
+            return;
+        }
+
+       else if (type === "script_no_asset_and_slice") {
+            projectJsonAggregate = JSON.parse(projectJsonAggregate);
+            for (const [actorName, sliceMap] of Object.entries(projectJsonAggregate)) {
+                if (actorName === "full" || actorName === "hidecode") {
+                    res[actorName] = await this.getScriptsOnly(projectID, sliceMap["all"], baseUrl);
+                }
+                else {
+                    res[actorName] = {};
+                    for (const [attributeName, programJson] of Object.entries(sliceMap) ) {
+                        res[actorName][attributeName] = await this.getScriptsOnly(projectID, programJson, baseUrl);
+                    }
                 }
             }
         }
+
 
         this.writeObj(projectID, res);
     }
@@ -119,7 +128,7 @@ export default class SnapinatorApp extends Component<any, State> {
             return;
         }
         const file = await response.arrayBuffer();
-        const project = await this.readProject(projectID, file, baseUrl, false, true);
+        const project = await this.readProject(projectID, file, baseUrl, true, true);
         return this.toUrl(project)
     }
 
