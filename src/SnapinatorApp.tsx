@@ -77,7 +77,7 @@ export default class SnapinatorApp extends Component<any, State> {
     async postSnapXML(projectID, type, projectJsonAggregate) {
         // can have the following types: "csc110", "script_no_asset_and_slice", "script_and_asset_no_slice", "script_and_asset_and_slice"
         let res = {};
-        const baseUrl = type === "csc110" ? globalConfig.csc110ServerURL : "https://assets.scratch.mit.edu/internalapi/asset/";
+        const baseUrl = type === "csc110" ? globalConfig.csc110IdeaServerURL : "https://assets.scratch.mit.edu/internalapi/asset/";
 
         if (type === "asset") { // we actually no longer have this type
             res['full'] = await this.getNonScripts(projectID, baseUrl);
