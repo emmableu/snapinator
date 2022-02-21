@@ -57,10 +57,9 @@ export default class Sprite extends Scriptable {
 
     readSB3(jsonObj: any, project: Project, libraryIndex: number, hasNonScripts: boolean, hasScripts: boolean): Sprite {
         super.readSB3(jsonObj, project, libraryIndex, hasNonScripts, hasScripts);
-
         this.x = jsonObj.x;
         this.y = jsonObj.y;
-        this.hidden = !jsonObj.visible;
+        this.hidden = jsonObj.visible === undefined ? false : !jsonObj.visible;
         this.scale = jsonObj.size / 100;
         this.direction = jsonObj.direction;
         this.rotationStyle = SB3_ROTATION_STYLES[jsonObj.rotationStyle] || 1;

@@ -106,6 +106,9 @@ export class AssetServerEntry extends ArchiveEntry {
         }
         else {
             response = await fetch(`${baseUrl}${this.fileName}`);
+            if (response.status === 404) {
+                response = await fetch(`https://assets.scratch.mit.edu/internalapi/asset/${this.fileName}/get/`);
+            }
         }
         return new Uint8Array(await response.arrayBuffer());
     }
